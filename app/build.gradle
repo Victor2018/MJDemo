@@ -1,0 +1,122 @@
+plugins {
+    id 'com.android.application'
+    id 'org.jetbrains.kotlin.android'
+}
+
+android {
+    namespace 'com.cherry.mjdemo'
+    compileSdk 33
+
+    signingConfigs {
+        release {
+            def Properties buildProps = getSign()
+            storeFile file(buildProps['STORE_FILE'])
+            keyAlias buildProps['KEY_ALIAS']
+            keyPassword buildProps['KEY_PASSWORD']
+            storePassword buildProps['STORE_PASSWORD']
+        }
+        qianyan {
+            def Properties buildProps = getSign()
+            storeFile file(buildProps['STORE_FILE'])
+            keyAlias buildProps['KEY_ALIAS']
+            keyPassword buildProps['KEY_PASSWORD']
+            storePassword buildProps['STORE_PASSWORD']
+        }
+        qianyi {
+            def Properties buildProps = getSign()
+            storeFile file(buildProps['STORE_FILE'])
+            keyAlias buildProps['KEY_ALIAS']
+            keyPassword buildProps['KEY_PASSWORD']
+            storePassword buildProps['STORE_PASSWORD']
+        }
+    }
+
+    defaultConfig {
+        applicationId "com.cherry.mjdemo"
+        minSdk 24
+        targetSdk 33
+        versionCode 1
+        versionName "1.0"
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            signingConfig signingConfigs.release
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+        debug {
+            signingConfig signingConfigs.release
+        }
+
+        // 前沿马甲包
+        qianyan.initWith(buildTypes.release) // 以release的配置来初始化马甲包配置
+        qianyan {
+            signingConfig signingConfigs.qianyan
+            applicationIdSuffix ".qianyan"
+            // 修改马甲包的applicationId，马甲包的application将为com.cherry.mjdemo.qianyan，
+            // 即在原来的applicationId后加上配置内容
+        }
+
+        // 千亿马甲包
+        qianyi.initWith(buildTypes.release) // 以release的配置来初始化马甲包配置
+        qianyi {
+            signingConfig signingConfigs.qianyi
+            applicationIdSuffix ".qianyi"
+            // 修改马甲包的applicationId，马甲包的application将为com.cherry.mjdemo.qianyi，
+            // 即在原来的applicationId后加上配置内容
+        }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+    kotlinOptions {
+        jvmTarget = '1.8'
+    }
+    buildFeatures {
+        viewBinding true
+    }
+
+    flavorDimensions "hok"
+    productFlavors {
+        beta {
+            dimension "hok"
+        }
+        dev {
+            dimension "hok"
+        }
+        _test {
+            dimension "hok"
+        }
+    }
+}
+
+/**
+ * 读取配置签名
+ * @return
+ */
+def getSign() {
+    def Properties buildProperties = new Properties()
+    buildProperties.load(new FileInputStream(file('../docs/sign.properties')))
+    return buildProperties
+}
+
+dependencies {
+
+    implementation 'androidx.core:core-ktx:1.9.0'
+    implementation 'androidx.appcompat:appcompat:1.6.1'
+    implementation 'com.google.android.material:material:1.8.0'
+    implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
+    implementation 'androidx.navigation:navigation-fragment-ktx:2.5.3'
+    implementation 'androidx.navigation:navigation-ui-ktx:2.5.3'
+    implementation project(path: ':module_home')
+    implementation project(path: ':module_home')
+    testImplementation 'junit:junit:4.13.2'
+    androidTestImplementation 'androidx.test.ext:junit:1.1.5'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
+
+    implementation(project(":module_home"))
+}
